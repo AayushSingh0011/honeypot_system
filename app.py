@@ -21,7 +21,18 @@ class ScamDetector:
     "security breach", "prosecution",
             "urgent", "immediately", "action required", "critical alert", 
     "final notice", "asap", "within 24 hours", "one-time offer", 
-    "expires soon", "act now", "last chance"
+    "expires soon", "act now", "last chance",
+            "bit.ly", "tinyurl.com", "t.co", "cutt.ly", "is.gd", "goo.gl",
+    "http://", "https://", ".xyz", ".top", ".site", ".online",
+            "refund amount", "kyc update", "pan card", "electricity bill", "bonus",
+    "stipend", "salary increase", "lottery", "cashback", "tax refund",
+    "unusual transaction", "otp", "bank details", "pay now",
+            "permanent suspension", "account deactivation", "final warning", 
+    "legal action", "court summons", "police notification", "prosecution",
+    "restricted access", "violation of terms", "security breach", "frozen",
+            "incomplete address", "re-delivery fee", "parcel on hold", "shipping fee",
+    "tracking number #", "reschedule delivery", "postal service", "delivery failed",
+    "warehouse", "unpaid shipping", "package pending", "shipment update"
         ]
 
     def analyze(self, message):
@@ -247,6 +258,7 @@ if __name__ == "__main__":
 
 # if __name__ == "__main__":
 #     app.run(debug=True)
+
 
 
 
