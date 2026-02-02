@@ -107,11 +107,22 @@ def dashboard():
 # ---------------- HONEYPOT API ----------------
 @app.route("/honeypot/analyze", methods=["POST"])
 def honeypot_analyze():
-    data = request.get_json()
-    if not data or "message" not in data:
-        return jsonify({"error": "Message required"}), 400
+    data = request.get_json(silent=True)
 
+# Case 1: Proper JSON
+if isinstance(data, dict) and "message" in data:
     message = data["message"]
+
+# Case 2: Tester sends raw text
+else:
+    message = request.data.decode("utf-8").strip()
+
+# Final validation
+if not message:
+    return jsonify({
+        "error": "INVALID_REQUEST_BODY",
+        "message": "Message field is required"
+    }), 400
     detection = detector.analyze(message)
 
     if detection["is_scam"]:
@@ -258,6 +269,7 @@ if __name__ == "__main__":
 
 # if __name__ == "__main__":
 #     app.run(debug=True)
+
 
 
 
