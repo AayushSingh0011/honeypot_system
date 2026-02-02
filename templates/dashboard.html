@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Scam Detector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#0f1115;color:white;height:100vh;display:flex;justify-content:center;align-items:center}
+.container{width:90%;max-width:900px;background:#1a1d23;border-radius:15px;padding:40px;text-align:center}
+.logo{font-size:28px;font-weight:bold;margin-bottom:20px}
+.ai-circle{width:120px;height:120px;border-radius:50%;margin:20px auto;
+background:radial-gradient(circle,#00eaff,#0051ff);box-shadow:0 0 30px #00eaff}
+.subtitle{color:#b5b5b5;margin:10px 0 30px}
+.options{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.card{background:#111318;width:280px;height:180px;padding:20px;border-radius:12px;
+display:flex;flex-direction:column;justify-content:center}
+textarea{width:100%;height:100%;background:#0f1115;color:white;border:1px solid #333;
+border-radius:8px;padding:10px;resize:none}
+button{margin-top:25px;padding:12px 35px;background:#00eaff;border:none;
+border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer}
+.result{margin-top:25px;font-size:20px;font-weight:bold}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <div class="logo">🛡 AI Scam Detector</div>
+    <div class="ai-circle"></div>
+
+    <h1>Let me take a look</h1>
+    <p class="subtitle">Paste suspicious message, email, or link</p>
+
+    <div class="options">
+        <div class="card">
+            <h3>🔍 Add Text or URL</h3>
+            <textarea id="inputText" placeholder="Paste message, email, or link..."></textarea>
+        </div>
+    </div>
+
+    <button onclick="detectScam()">Analyze</button>
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+async function detectScam() {
+    const text = document.getElementById("inputText").value;
+    const result = document.getElementById("result");
+
+    if (text.trim() === "") {
+        result.innerHTML = "⚠ Please enter text.";
+        return;
+    }
+
+    result.innerHTML = "⏳ Analyzing...";
+
+    try {
+        const response = await fetch("/honeypot/analyze", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: text })
+        });
+
+        const data = await response.json();
+
+        if (!data.is_scam) {
+            result.innerHTML = `
+                ✅ <b>No Scam Detected</b><br>
+                Confidence: ${data.confidence}
+            `;
+            return;
+        }
+
+        // Build detailed result (LIKE YOUR OLD PROJECT)
+        let html = `
+            🚨 <b>Scam Detected</b><br>
+            <b>Level:</b> ${data.level}<br>
+            <b>Confidence:</b> ${data.confidence}<br><br>
+            <b>🤖 Agent Reply:</b><br>
+            "${data.agent_reply}"<br><br>
+        `;
+
+        // Extracted data
+        if (data.extracted_data) {
+            if (data.extracted_data.upi_ids.length > 0) {
+                html += `<b>💳 Extracted UPI IDs:</b><br>`;
+                data.extracted_data.upi_ids.forEach(upi => {
+                    html += `• ${upi}<br>`;
+                });
+                html += `<br>`;
+            }
+
+            if (data.extracted_data.links.length > 0) {
+                html += `<b>🔗 Extracted Links:</b><br>`;
+                data.extracted_data.links.forEach(link => {
+                    html += `• ${link}<br>`;
+                });
+            }
+        }
+
+        result.innerHTML = html;
+
+    } catch (err) {
+        result.innerHTML = "❌ Error connecting to server.";
+    }
+}
+</script>
+</body>
+</html>
