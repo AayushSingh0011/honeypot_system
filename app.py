@@ -10,7 +10,18 @@ class ScamDetector:
         self.keywords = [
             "otp", "upi", "verify", "kyc",
             "account blocked", "urgent", "urgently",
-            "click", "link", "won", "coupon"
+            "click", "link", "won", "coupon",
+            "click here", "verify now", "update your info", "login to", 
+    "restore access", "confirm identity", "secure account", 
+    "validation required", "download attachment",
+            "refund", "cashback", "lottery", "winner", "invoice", "payment failed", 
+    "tax return", "stipend", "bonus", "claimed", "transaction", "bank details",
+            "suspended", "locked", "restricted", "deactivated", "unauthorized", 
+    "legal action", "penalty", "frozen", "compromised", "identity theft", 
+    "security breach", "prosecution",
+            "urgent", "immediately", "action required", "critical alert", 
+    "final notice", "asap", "within 24 hours", "one-time offer", 
+    "expires soon", "act now", "last chance"
         ]
 
     def analyze(self, message):
@@ -236,6 +247,7 @@ if __name__ == "__main__":
 
 # if __name__ == "__main__":
 #     app.run(debug=True)
+
 
 
 
