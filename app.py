@@ -107,24 +107,30 @@ def dashboard():
 # ---------------- HONEYPOT API ----------------
 @app.route("/honeypot/analyze", methods=["POST"])
 def honeypot_analyze():
-    data = request.get_json(silent=True)
 
-    # Case 1: Proper JSON
+    message = None
+
+    # 1️⃣ Try JSON
+    data = request.get_json(silent=True)
     if isinstance(data, dict) and "message" in data:
         message = data["message"]
 
-    # Case 2: Tester sends raw text
-    else:
+    # 2️⃣ Try form-data / x-www-form-urlencoded
+    elif "message" in request.form:
+        message = request.form.get("message")
+
+    # 3️⃣ Try raw body text
+    elif request.data:
         message = request.data.decode("utf-8").strip()
 
-    # Final validation
+    # 4️⃣ Final validation
     if not message:
         return jsonify({
             "error": "INVALID_REQUEST_BODY",
-            "message": "Message field is required"
+            "message": "No message received"
         }), 400
 
-    # ---- YOUR ORIGINAL LOGIC (UNCHANGED) ----
+    # ---- ORIGINAL LOGIC (UNCHANGED) ----
     detection = detector.analyze(message)
 
     if detection["is_scam"]:
@@ -149,11 +155,11 @@ def honeypot_analyze():
         }
 
     return jsonify(response), 200
-
 # ---------------- RUN (RENDER SAFE) ----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
