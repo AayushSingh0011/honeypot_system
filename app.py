@@ -101,19 +101,53 @@ guard = Guard()
 # ---------------- UI ROUTE ----------------
 @app.route("/honeypot/analyze", methods=["POST"])
 def honeypot_analyze():
-    # GUVI Endpoint Tester sends NO BODY
-    # So always return a valid honeypot response
+    try:
+        data = request.get_json(force=True, silent=True)
 
-    return jsonify({
-        "status": "ACTIVE",
-        "honeypot": "READY",
-        "secured": True,
-        "message": "Agentic honeypot endpoint is live and responding"
-    }), 200
+        # ---- Extract message text safely ----
+        scam_text = ""
+
+        if isinstance(data, dict):
+            message = data.get("message", {})
+            if isinstance(message, dict):
+                scam_text = message.get("text", "")
+
+        # ---- If no text, still return valid JSON ----
+        if not scam_text:
+            return jsonify({
+                "status": "success",
+                "reply": "Could you please clarify your message?"
+            }), 200
+
+        text_lower = scam_text.lower()
+
+        # ---- Agentic reply logic ----
+        if "account" in text_lower or "blocked" in text_lower:
+            reply = "Why is my account being suspended?"
+        elif "verify" in text_lower:
+            reply = "What details do you need for verification?"
+        elif "otp" in text_lower or "upi" in text_lower:
+            reply = "Can you explain why this information is required?"
+        else:
+            reply = "Can you provide more details regarding this?"
+
+        return jsonify({
+            "status": "success",
+            "reply": reply
+        }), 200
+
+    except Exception as e:
+        # Absolute safety: never return non-JSON
+        return jsonify({
+            "status": "success",
+            "reply": "I am unable to understand. Please explain again."
+        }), 200
+
 # ---------------- RUN (RENDER SAFE) ----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
